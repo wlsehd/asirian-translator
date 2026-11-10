@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asirian Translator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Translator</h1>
+    <input id="in" type="text">
+    <input id="out">
+
+    <div id="specialChars">
+        <button type="button" data-char="θ">θ</button>
+        <button type="button" data-char="ü">ü</button>
+        <button type="button" data-char="ö">ö</button>
+        <button type="button" data-char="/">/</button>
+    </div>
+
+    <div id="duplicates"></div>
+
+    <dialog id="choiceDialog">
+        <p id="choiceTitle">의도한 단어를 선택하세요.</p>
+        <div id="choiceOptions"></div>
+        <button id="closeDialog" type="button">닫기</button>
+    </dialog>
+
+    <details>
+        <summary>문법 펼치기</summary>
+        <p>과거형: -ü</p>
+        <p>형용사: -y</p>
+        <p>동사: -d</p>
+        <p>과거분사: -dy</p>
+        <p>동명사/현재분사: -in</p>
+        <p>복수: -(e)s</p>
+    </details>
+    
+    <details>
+        <summary>단어 목록 펼치기</summary>
+        <p id="list"></p>
+    </details>
+    
+    
+    <script>
+        let vocas = [];
+
+        let selectedWords = {};
+        let previousAsiText = "";
+
+        fetch("assets/vocas.json")
+            .then(response => response.json())
+            .then(data => {
+                vocas = data;
+
+                const types = {
+                    noun: "명사",
+                    adjective: "형용사",
+                    verb: "동사",
+                    modalverb: "조동사",
+                    adverb: "부사",
+                    conjunction: "접속사",
+                    preposition: "전치사"
+                };
+
+                document.getElementById("list").innerHTML = Object.entries(types)
+                    .map(([type, name]) => {
+                        const words = vocas
+                            .filter(item => item.type === type)
+                            .map(item => `<p>${item.eng} = ${item.asi}</p>`)
+                            .join("");
+
+                        return `
+                            <h3>${name}</h3>
+                            ${words}
+                        `;
+                    })
+                    .join("");
+        });
+
+        const in_input = document.getElementById("in");
+        const out_input = document.getElementById("out");
+        
+        in_input.placeholder = "Enter English";
+        out_input.placeholder = "Enter Asirian";
+        
+        in_input.addEventListener("input", function() {
+            const text = in_input.value.trim();
+
+            if (text === "") {
+                out_input.value = "";
+                return;
+            }
+
+            out_input.value = engToAsi(text);
+        });
+        
+        out_input.addEventListener("input", function() {
+            const text = out_input.value.trim();
+            const oldWords = previousAsiText.split(" ");
+            const newWords = text.split(" ");
+
+            // 기존 단어의 선택 기록 유지
+            const newSelectedWords = {};
+
+            newWords.forEach((word, index) => {
+                if (
+                    oldWords[index] &&
+                    oldWords[index].toLowerCase() === word.toLowerCase() &&
+                    selectedWords[index]
+                ) {
+                    newSelectedWords[index] = selectedWords[index];
+                }
+            });
+
+            selectedWords = newSelectedWords;
+            previousAsiText = text;
+
+            if (text === "") {
+                in_input.value = "";
+                document.getElementById("duplicates").innerHTML = "";
+                return;
+            }
+
+            updateTranslation(text);
+            checkDuplicates(text);
+        });
+
+        function engToAsi(eng) {
+            return eng.split(" ").map(word => {
+                const result = vocas.find(
+                    item => item.eng.toLowerCase() === word.toLowerCase()
+                );
+
+                return result ? result.asi : word;
+            }).join(" ");
+        }
+        
+        function asiToEng(asi) {
+            return asi.split(" ").map(word => {
+                const result = vocas.find(
+                    item => item.asi.toLowerCase() === word.toLowerCase()
+                );
+        
+                return result ? result.eng : word;
+            }).join(" ");
+        }
+
+        function updateTranslation(text) {
+            const words = text.split(" ");
+
+            in_input.value = words.map((word, index) => {
+                const matches = vocas.filter(
+                    item => item.asi.toLowerCase() === word.toLowerCase()
+                );
+
+                if (matches.length === 0) return word;
+
+                const selected = matches.find(
+                    item => item.eng === selectedWords[index]
+                );
+
+                return selected ? selected.eng : matches[0].eng;
+            }).join(" ");
+}
+
+        function checkDuplicates(text) {
+            const duplicates = document.getElementById("duplicates");
+            const dialog = document.getElementById("choiceDialog");
+            const choiceTitle = document.getElementById("choiceTitle");
+            const choiceOptions = document.getElementById("choiceOptions");
+
+            duplicates.innerHTML = "";
+
+            const words = text.split(" ");
+
+            words.forEach((word, index) => {
+                const matches = vocas.filter(
+                    item => item.asi.toLowerCase() === word.toLowerCase()
+                );
+
+                if (matches.length > 1) {
+                    const button = document.createElement("button");
+
+                    button.textContent = `${word} (중복 단어)`;
+
+                    button.onclick = () => {
+                        choiceTitle.textContent = `"${word}"의 의도된 단어를 선택하세요.`;
+                        choiceOptions.innerHTML = "";
+
+                        matches.forEach(item => {
+                            const option = document.createElement("button");
+
+                            option.textContent = item.eng;
+
+                            option.onclick = () => {
+                                selectedWords[index] = item.eng;
+
+                                updateTranslation(out_input.value.trim());
+
+                                dialog.close();
+                            };
+
+                            choiceOptions.appendChild(option);
+                        });
+
+                        dialog.showModal();
+                    };
+
+                    duplicates.appendChild(button);
+                }
+            });
+        }
+
+        document.getElementById("closeDialog").addEventListener("click", () => {
+            document.getElementById("choiceDialog").close();
+        });
+
+        const specialChars = document.querySelectorAll("#specialChars button");
+
+        specialChars.forEach(button => {
+            button.addEventListener("mousedown", event => {
+                event.preventDefault();
+            });
+
+            button.addEventListener("click", () => {
+                const char = button.dataset.char;
+
+                const start = out_input.selectionStart;
+                const end = out_input.selectionEnd;
+
+                out_input.setRangeText(char, start, end, "end");
+
+                out_input.focus();
+
+                out_input.dispatchEvent(new Event("input", {
+                    bubbles: true
+                }));
+            });
+        });
+    </script>
+</body>
+</html>

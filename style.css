@@ -1,0 +1,294 @@
+/* 기본 설정 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    background: #101522;
+    color: #e5eaf3;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* 전체 제목 */
+h1 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 35px;
+    color: #8ba9ff;
+}
+
+/* 입력창 */
+input {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 15px auto;
+    padding: 17px 20px;
+
+    background: #1c2638;
+    color: #f1f5ff;
+
+    border: 1px solid #35435c;
+    border-radius: 12px;
+    outline: none;
+
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+input::placeholder {
+    color: #8290a8;
+}
+
+input:focus {
+    border-color: #7295ff;
+    box-shadow: 0 0 0 3px #7295ff22;
+}
+
+/* 세부 정보 영역 */
+details {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 16px 20px;
+
+    background: #1a2333;
+    border: 1px solid #303e55;
+    border-radius: 12px;
+
+    transition: 0.2s;
+}
+
+/* 펼치기 버튼 */
+summary {
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    color: #a9bdff;
+    user-select: none;
+}
+
+summary:hover {
+    color: #d1dcff;
+}
+
+/* 펼쳐진 내용 */
+details[open] summary {
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #35435c;
+}
+
+/* 문법 설명 */
+details p {
+    margin: 10px 0;
+    padding: 10px 12px;
+
+    background: #222e42;
+    border-radius: 7px;
+
+    color: #cbd5e8;
+    font-size: 14px;
+}
+
+/* 단어 목록 */
+#list {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+#list p {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin: 7px 0;
+    padding: 10px 12px;
+
+    background: #222e42;
+    border-radius: 7px;
+
+    font-size: 14px;
+    color: #dce5f5;
+}
+
+/* 스크롤바 */
+#list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#list::-webkit-scrollbar-thumb {
+    background: #536582;
+    border-radius: 10px;
+}
+
+#list::-webkit-scrollbar-track {
+    background: #1a2333;
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+    body {
+        padding: 25px 15px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    input {
+        padding: 15px;
+    }
+
+    details {
+        padding: 14px 16px;
+    }
+}
+
+/* 기본 버튼 */
+button {
+    padding: 10px 16px;
+    border: 1px solid #405783;
+    border-radius: 8px;
+
+    background: #293b5c;
+    color: #dce7ff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 
+        background 0.2s,
+        border-color 0.2s,
+        transform 0.15s;
+}
+
+button:hover {
+    background: #38517d;
+    border-color: #7295ff;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* 중복 단어 버튼 영역 */
+#duplicates {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+
+    max-width: 600px;
+    margin: 15px auto;
+}
+
+#duplicates button {
+    background: #352d50;
+    border-color: #62518e;
+    color: #cbbaff;
+}
+
+#duplicates button:hover {
+    background: #493b6d;
+    border-color: #a58aff;
+}
+
+/* 선택 창 */
+#choiceDialog {
+    width: min(90%, 350px);
+    padding: 25px;
+
+    background: #1a2333;
+    color: #e5eaf3;
+
+    border: 1px solid #40516e;
+    border-radius: 16px;
+
+    box-shadow: 0 15px 50px #0008;
+}
+
+#choiceDialog::backdrop {
+    background: #050914bb;
+    backdrop-filter: blur(3px);
+}
+
+/* 선택 창 제목 */
+#choiceTitle {
+    margin: 0 0 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #a9bdff;
+}
+
+/* 선택지 버튼 영역 */
+#choiceOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#choiceOptions button {
+    flex: 1;
+    min-width: 80px;
+
+    padding: 12px;
+    background: #293b5c;
+    border-color: #536d9c;
+    color: #e5eaf3;
+}
+
+#choiceOptions button:hover {
+    background: #405b8b;
+    border-color: #8ba9ff;
+}
+
+/* 닫기 버튼 */
+#closeDialog {
+    width: 100%;
+    background: #252e3e;
+    border-color: #3a465a;
+    color: #aab6ca;
+}
+
+#closeDialog:hover {
+    background: #354155;
+    color: #ffffff;
+}
+
+/* 특수문자 버튼 */
+#specialChars {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    max-width: 600px;
+    margin: 15px auto;
+}
+
+#specialChars button {
+    width: 55px;
+    height: 45px;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    background: #253653;
+    border: 1px solid #405783;
+    border-radius: 9px;
+
+    color: #a9bdff;
+}
+
+#specialChars button:hover {
+    background: #38517d;
+    color: white;
+}
